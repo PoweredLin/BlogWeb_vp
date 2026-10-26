@@ -10,8 +10,9 @@ RUN npm run build
 FROM python:3.13-slim-bookworm
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+ARG PIP_INDEX_URL=https://pypi.org/simple
 COPY backend/requirements.lock.txt ./backend/requirements.lock.txt
-RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r backend/requirements.lock.txt && useradd --uid 10001 --create-home notebook
+RUN pip install --no-cache-dir --index-url "$PIP_INDEX_URL" -r backend/requirements.lock.txt && useradd --uid 10001 --create-home notebook
 COPY backend ./backend
 COPY public ./public
 COPY --from=build /app/public ./public

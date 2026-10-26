@@ -10,7 +10,7 @@
 
 ```sh
 cd /www/wwwroot
-git clone https://gitee.com/cxrg/blog-web.git lin-notebook-v9
+git clone --branch codex/v9-fastapi https://gitee.com/cxrg/blog-web.git lin-notebook-v9
 cd lin-notebook-v9
 cp .env.example .env
 chmod 600 .env
@@ -38,6 +38,12 @@ docker --version
 docker compose version
 docker compose config --quiet
 docker compose build
+```
+
+Python 官方源下载慢时，可仅对本次构建指定可信 HTTPS 镜像源，不修改应用运行配置：
+
+```sh
+docker compose build --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 首次构建下载 Node/Python 基础镜像和依赖，需要访问镜像源。构建较耗内存；对 2 核 4G 主机，更推荐在自己的电脑构建后传镜像：
