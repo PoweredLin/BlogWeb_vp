@@ -2,7 +2,15 @@
 
 Vue 3 博客、个人空间与创作管理，FastAPI + SQLite 后端，Docker 部署。保留 V8 的两套空间主题、博客布局、生活记录与创作功能，兼容已有数据库及上传图片。
 
-仓库：<https://gitee.com/cxrg/blog-web>
+仓库：<https://github.com/PoweredLin/BlogWeb>
+
+面向个人使用的精致博客与私人工作台：文章、说说、相册、评论审核、双主题空间、生活记录和 Git 动态集中管理，支持 Docker 部署与旧版数据迁移。
+
+## 维护者与贡献来源
+
+- [Lin / PoweredLin](https://github.com/PoweredLin)：项目维护、需求与视觉方向、素材整理、部署与使用反馈。
+- Mr Zhang 与 PureAdmin：原博客、后台界面和基础组件来源，原许可证继续保留。
+- Codex、WorkBuddy：开发过程中的 AI 辅助工具；具体参与范围见 [贡献者与来源说明](CONTRIBUTORS.md)。
 
 ## 文档
 
@@ -52,3 +60,5 @@ npm run test:appearance
 浏览器测试需配置 `CHROME_PATH`。测试使用临时数据库，不修改真实内容。
 
 原博客与后台的源码许可证保留在 `source/` 和 `public/licenses/`。来源与致谢保留在网站“关于”页。
+
+本仓库保留维护者选用的 Apache 2.0 根许可证；第三方源码遵循其原有 MIT 许可证，图片、语音等素材不包含在代码许可授权中，详见 [ASSETS.md](ASSETS.md)。
