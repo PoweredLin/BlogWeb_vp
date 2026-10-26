@@ -1,6 +1,6 @@
 # V9 部署与从线上 V8 升级
 
-适用环境：宝塔、2 核 4G、域名已绑定、Nginx 提供 HTTPS。仓库：<https://github.com/PoweredLin/BlogWeb>。
+适用环境：宝塔、2 核 4G、域名已绑定、Nginx 提供 HTTPS。仓库：<https://github.com/PoweredLin/BlogWeb_vp>。
 
 **线上已经写过文章和上传图片。必须搬服务器的 `data`，不能用本地测试数据覆盖。** 新版仍使用 SQLite；不需要把文章导出后重新发布。
 
@@ -10,7 +10,7 @@
 
 ```sh
 cd /www/wwwroot
-git clone --branch main https://github.com/PoweredLin/BlogWeb.git lin-notebook-v9
+git clone --branch main https://github.com/PoweredLin/BlogWeb_vp.git lin-notebook-v9
 cd lin-notebook-v9
 cp .env.example .env
 chmod 600 .env

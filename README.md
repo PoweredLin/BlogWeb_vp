@@ -2,7 +2,7 @@
 
 Vue 3 博客、个人空间与创作管理，FastAPI + SQLite 后端，Docker 部署。保留 V8 的两套空间主题、博客布局、生活记录与创作功能，兼容已有数据库及上传图片。
 
-仓库：<https://github.com/PoweredLin/BlogWeb>
+仓库：<https://github.com/PoweredLin/BlogWeb_vp>
 
 面向个人使用的精致博客与私人工作台：文章、说说、相册、评论审核、双主题空间、生活记录和 Git 动态集中管理，支持 Docker 部署与旧版数据迁移。
 
