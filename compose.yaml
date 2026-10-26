@@ -1,0 +1,37 @@
+name: lin-notebook
+services:
+  space:
+    build: .
+    image: lin-notebook:9
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:4317:4317"
+    environment:
+      APP_ENV: production
+      SITE_URL: ${SITE_URL:-https://lolicong.xyz}
+      COOKIE_SECURE: "true"
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-172.30.17.1}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - ./data:/app/data
+      - ./backups:/app/backups
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 768m
+    cpus: 1.5
+    pids_limit: 128
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks: [notebook]
+networks:
+  notebook:
+    ipam:
+      config:
+        - subnet: 172.30.17.0/24

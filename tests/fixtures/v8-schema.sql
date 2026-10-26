@@ -1,0 +1,23 @@
+-- Schema only from the pre-migration V8 backup; no user data.
+CREATE TABLE audit(id INTEGER PRIMARY KEY,event TEXT NOT NULL,recordId TEXT,created TEXT NOT NULL, userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE captchas(id TEXT PRIMARY KEY,answer TEXT NOT NULL,ip TEXT NOT NULL,expires INTEGER NOT NULL);
+CREATE TABLE comment_rates(key TEXT PRIMARY KEY,count INTEGER NOT NULL,until INTEGER NOT NULL);
+CREATE TABLE comments(id TEXT PRIMARY KEY,postId TEXT NOT NULL,name TEXT NOT NULL,content TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created TEXT NOT NULL,updated TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE ingest(token TEXT NOT NULL,key TEXT NOT NULL,hash TEXT NOT NULL,recordId TEXT NOT NULL,created TEXT NOT NULL,PRIMARY KEY(token,key));
+CREATE TABLE journal(id TEXT PRIMARY KEY,kind TEXT NOT NULL,userId TEXT NOT NULL,data TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE member_profiles(userId TEXT PRIMARY KEY,data TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE member_rates(key TEXT PRIMARY KEY,count INTEGER NOT NULL,expires INTEGER NOT NULL);
+CREATE TABLE meta(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+CREATE TABLE post_owners(postId TEXT PRIMARY KEY,userId TEXT NOT NULL);
+CREATE TABLE records(id TEXT PRIMARY KEY,kind TEXT NOT NULL,data TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created TEXT NOT NULL,updated TEXT NOT NULL,deleted TEXT, userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE registrations(id TEXT PRIMARY KEY,username TEXT NOT NULL,name TEXT NOT NULL,salt TEXT NOT NULL,hash TEXT NOT NULL,reason TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'pending',created TEXT NOT NULL,reviewed TEXT);
+CREATE TABLE sessions(token TEXT PRIMARY KEY,expires INTEGER NOT NULL, userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE taxonomy(kind TEXT NOT NULL,name TEXT NOT NULL,PRIMARY KEY(kind,name));
+CREATE TABLE tokens(id TEXT PRIMARY KEY,hash TEXT NOT NULL,name TEXT NOT NULL,expires INTEGER NOT NULL,created TEXT NOT NULL, userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE upload_owners(name TEXT PRIMARY KEY,userId TEXT NOT NULL);
+CREATE TABLE users(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,name TEXT NOT NULL,salt TEXT NOT NULL,hash TEXT NOT NULL,disabled INTEGER NOT NULL DEFAULT 0,created TEXT NOT NULL);
+CREATE INDEX comments_post ON comments(postId,status);
+CREATE INDEX journal_kind ON journal(kind);
+CREATE INDEX records_kind ON records(kind,deleted);
+CREATE UNIQUE INDEX registration_pending ON registrations(username) WHERE status='pending';
+PRAGMA user_version=8;

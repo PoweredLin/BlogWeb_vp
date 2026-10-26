@@ -1,0 +1,4 @@
+import {publicData,request,result} from '@/integration/service';
+export async function homeGetConfig(){const [d,s]=await Promise.all([publicData(),request('/api/site')]);return result({blog_name:s.title,personal_say:s.subtitle,blog_notice:s.notice,blog_avatar:s.avatar||'/favicon.svg',previewImages:s.previewImages,avatar_bg:s.avatarBg||'/assets/landscape-room.webp',createdAt:'2026-09-14',articleCount:d.posts.length,categoryCount:new Set(d.posts.map(p=>p.category)).size,tagCount:new Set(d.posts.flatMap(p=>p.tags.split(/[,，]/)).filter(Boolean)).size});}
+export async function getAllPageHeader(){const s=await request('/api/site');return result(['Home','Archives','Category','Tag','ArticleList','About','Article'].map((route_name,i)=>({route_name,bg_url:s.coverImage||'/assets/'+s.cover+'.webp'})));}
+export const addView=async()=>result(null);

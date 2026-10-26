@@ -1,0 +1,1 @@
+export const addLike=async()=>({code:1,message:'请通过留言交流，留言需审核'});export const cancelLike=addLike;export const getIsLikeByIdOrIpAndType=async()=>({code:0,result:false});

@@ -1,0 +1,13 @@
+import {defineConfig} from 'vite';
+import vue from '@vitejs/plugin-vue';
+import jsx from '@vitejs/plugin-vue-jsx';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import {ElementPlusResolver} from 'unplugin-vue-components/resolvers';
+import svgLoader from 'vite-svg-loader';
+import tailwind from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
+import fs from 'node:fs';import path from 'node:path';
+const kind=process.env.BUILD_TARGET==='admin'?'admin':'blog',root=path.resolve('source',kind);
+function symbols(){return {name:'local-svg-sprite',resolveId(id){if(id==='virtual:svg-icons-register')return '\0local-svg-sprite';},load(id){if(id!=='\0local-svg-sprite')return;const dir=path.join(root,'src/icons/svg');const content=fs.existsSync(dir)?fs.readdirSync(dir).filter(f=>f.endsWith('.svg')).map(f=>{const svg=fs.readFileSync(path.join(dir,f),'utf8');const box=/viewBox="([^"]+)"/.exec(svg)?.[1]||'0 0 1024 1024';return `<symbol id="icon-${f.slice(0,-4)}" viewBox="${box}">${svg.replace(/^[\s\S]*?<svg[^>]*>/,'').replace(/<\/svg>[\s\S]*$/,'')}</symbol>`;}).join(''):'';return `const el=document.createElementNS('http://www.w3.org/2000/svg','svg');el.setAttribute('aria-hidden','true');el.style.display='none';el.innerHTML=${JSON.stringify(content)};document.body.append(el);`;}};}
+export default defineConfig({root,base:kind==='admin'?'/admin-app/':'/blog-app/',resolve:{alias:{'@':path.join(root,'src'),'@build':path.join(root,'build')},extensions:['.mjs','.js','.ts','.tsx','.json','.vue']},plugins:[vue({template:{transformAssetUrls:false}}),jsx(),svgLoader(),symbols(),AutoImport({resolvers:[ElementPlusResolver()],dts:false}),Components({dirs:[path.join(root,'src/components')],resolvers:[ElementPlusResolver()],dts:false})],css:{postcss:{plugins:[tailwind({content:[root+'/index.html',root+'/src/**/*.{vue,js,ts,tsx}'],theme:{extend:{}},plugins:[]}),autoprefixer()]},preprocessorOptions:{scss:{silenceDeprecations:['legacy-js-api','import','global-builtin','color-functions','if-function'],...(kind==='blog'?{additionalData:`@import "${path.join(root,'src/styles/base.scss').replaceAll('\\','/')}";`}:{})}}},define:{'import.meta.env.VITE_PUBLIC_PATH':JSON.stringify('/admin-app/'),'import.meta.env.VITE_ROUTER_HISTORY':JSON.stringify('h5,/admin/'),'import.meta.env.VITE_HIDE_HOME':JSON.stringify('false'),__APP_INFO__:JSON.stringify({pkg:{name:'lolicong-source-fork',version:'4.0.0'},lastBuildTime:new Date().toISOString()})},build:{outDir:path.resolve('public',kind==='admin'?'admin-app':'blog-app'),emptyOutDir:true,chunkSizeWarningLimit:2200}});

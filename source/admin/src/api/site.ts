@@ -1,0 +1,3 @@
+import {request,result,upload,posts} from '@/integration/service';
+export type SiteResult={code:number;message:string;result:any};
+export const imgUpload=upload;export const mdImgUpload=upload;export const getConfigDetail=async()=>result(await request('/api/admin/site'));export const updateConfigDetail=async b=>result(await request('/api/admin/site','PUT',b));export const getCommitList=async()=>{const rows=await posts();return rows.map(p=>({created_at:p.created,commit_count:1}));};

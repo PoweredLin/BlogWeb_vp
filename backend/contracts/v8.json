@@ -1,0 +1,1136 @@
+{
+  "schemas": {
+    "tasks": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "project": {
+          "default": "日常",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "priority": {
+          "default": "normal",
+          "type": "string",
+          "enum": [
+            "high",
+            "normal",
+            "low"
+          ]
+        },
+        "status": {
+          "default": "todo",
+          "type": "string",
+          "enum": [
+            "todo",
+            "doing",
+            "done"
+          ]
+        },
+        "due": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "note": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "completed": {
+          "default": "",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "due"
+      ]
+    },
+    "habits": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "boolean",
+            "count",
+            "number"
+          ]
+        },
+        "target": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100000
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "checks": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000
+          }
+        }
+      },
+      "required": [
+        "title",
+        "type",
+        "target",
+        "unit"
+      ]
+    },
+    "health": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "steps": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "resting": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "active": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "intake": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "exercise": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "weight": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 600
+        },
+        "water": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30000
+        },
+        "mood": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "note": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "date"
+      ]
+    },
+    "meals": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "meal": {
+          "type": "string",
+          "enum": [
+            "早餐",
+            "午餐",
+            "晚餐",
+            "加餐"
+          ]
+        },
+        "calories": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20000
+        },
+        "note": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "date",
+        "title",
+        "meal",
+        "calories"
+      ]
+    },
+    "sleep": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "start": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "deep": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "light": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "rem": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "awake": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "awakenings": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "heartRate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 250
+        },
+        "note": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "date",
+        "start",
+        "end",
+        "score",
+        "deep",
+        "light",
+        "rem",
+        "awake",
+        "awakenings",
+        "heartRate"
+      ]
+    },
+    "library": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "番剧",
+            "Galgame",
+            "游戏",
+            "书籍",
+            "电影"
+          ]
+        },
+        "creator": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "wish",
+            "playing",
+            "done",
+            "paused"
+          ]
+        },
+        "progress": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "total": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100000
+        },
+        "rating": {
+          "default": 0,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "tags": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "note": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "cover": {
+          "default": "/assets/flower-03.webp",
+          "type": "string",
+          "pattern": "^\\/(assets|uploads)\\/[\\w.-]+$"
+        },
+        "favorite": {
+          "default": false,
+          "type": "boolean"
+        },
+        "route": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "character": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "quote": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "title",
+        "kind",
+        "status",
+        "progress",
+        "total"
+      ]
+    },
+    "notes": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 20000
+        }
+      },
+      "required": [
+        "date",
+        "title",
+        "content"
+      ]
+    },
+    "posts": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "demo": {
+          "default": false,
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,100}$"
+        },
+        "excerpt": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 200000
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "tags": {
+          "default": "",
+          "type": "string",
+          "maxLength": 20000
+        },
+        "cover": {
+          "default": "",
+          "type": "string",
+          "pattern": "^$|^\\/(assets|uploads)\\/[\\w.-]+$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "published",
+            "private",
+            "scheduled"
+          ]
+        },
+        "publishAt": {
+          "type": "string"
+        },
+        "featured": {
+          "default": false,
+          "type": "boolean"
+        },
+        "type": {
+          "default": 1,
+          "anyOf": [
+            {
+              "type": "number",
+              "const": 1
+            },
+            {
+              "type": "number",
+              "const": 2
+            },
+            {
+              "type": "number",
+              "const": 3
+            }
+          ]
+        },
+        "origin_url": {
+          "default": "",
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "order": {
+          "default": null,
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 999
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "slug",
+        "excerpt",
+        "content",
+        "category",
+        "status",
+        "publishAt"
+      ]
+    }
+  },
+  "profileSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "tagline": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "bio": {
+        "type": "string",
+        "maxLength": 2000
+      },
+      "interests": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "favoriteAnime": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "favoriteGames": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "season": {
+        "type": "string",
+        "maxLength": 100
+      },
+      "accent": {
+        "type": "string",
+        "enum": [
+          "sage",
+          "rose",
+          "blue"
+        ]
+      },
+      "scene": {
+        "type": "string",
+        "enum": [
+          "cafe",
+          "flower",
+          "may",
+          "atri",
+          "charlotte",
+          "wada"
+        ]
+      },
+      "wallpaper": {
+        "default": "dimension-blue",
+        "type": "string",
+        "enum": [
+          "landscape-fields",
+          "landscape-room",
+          "landscape-study",
+          "landscape-dawn",
+          "landscape-fantasy",
+          "landscape-journey",
+          "landscape-orbit",
+          "landscape-eye",
+          "landscape-games",
+          "dimension-sunset",
+          "dimension-blue",
+          "dimension-gold",
+          "dimension-violet",
+          "dimension-pink"
+        ]
+      },
+      "blogWallpaper": {
+        "default": "dimension-sunset",
+        "type": "string",
+        "enum": [
+          "landscape-fields",
+          "landscape-room",
+          "landscape-study",
+          "landscape-dawn",
+          "dimension-sunset",
+          "dimension-blue",
+          "dimension-gold",
+          "dimension-violet",
+          "dimension-pink"
+        ]
+      },
+      "voice": {
+        "default": "greeting-00",
+        "type": "string",
+        "pattern": "^greeting-(0[0-9]|1[0-8])$"
+      },
+      "stepsGoal": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "sleepGoal": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 24
+      },
+      "waterGoal": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 20000
+      }
+    },
+    "required": [
+      "name",
+      "tagline",
+      "bio",
+      "interests",
+      "favoriteAnime",
+      "favoriteGames",
+      "season",
+      "accent",
+      "scene",
+      "stepsGoal",
+      "sleepGoal",
+      "waterGoal"
+    ]
+  },
+  "defaultProfile": {
+    "name": "Lin",
+    "tagline": "把普通的日子，过成喜欢的故事。",
+    "bio": "在代码、故事和日常之间，收藏一点自己的光。这里是我的个人空间，也是一份持续更新的生活存档。",
+    "interests": "日常系,Galgame,独立游戏,前端设计,咖啡,慢生活",
+    "favoriteAnime": "",
+    "favoriteGames": "",
+    "season": "给日常一点心动",
+    "accent": "blue",
+    "scene": "atri",
+    "wallpaper": "dimension-blue",
+    "blogWallpaper": "dimension-sunset",
+    "voice": "greeting-00",
+    "stepsGoal": 8000,
+    "sleepGoal": 8,
+    "waterGoal": 2000
+  },
+  "defaultStory": {
+    "round": 1,
+    "points": 0,
+    "lastClick": 0,
+    "phase": "normal",
+    "unlocks": {},
+    "scene": 0,
+    "lastLine": "",
+    "seen": []
+  },
+  "awards": [
+    [
+      "hello",
+      "初次对上视线",
+      "点击一次角色组合"
+    ],
+    [
+      "second",
+      "再一次的初见",
+      "完成一周目"
+    ],
+    [
+      "after",
+      "后日谈",
+      "解锁二周目结局"
+    ],
+    [
+      "cold",
+      "冷静冷静",
+      "好感度达到 −100"
+    ],
+    [
+      "task",
+      "小事的胜利",
+      "完成真实任务"
+    ],
+    [
+      "habit",
+      "今天也在一起",
+      "完成真实习惯打卡"
+    ],
+    [
+      "library",
+      "故事还没结束",
+      "推进真实收藏进度"
+    ],
+    [
+      "health",
+      "照顾自己的路线",
+      "保存健康或餐食记录"
+    ]
+  ],
+  "demo": [
+    {
+      "kind": "tasks",
+      "data": {
+        "demo": true,
+        "title": "给自己的博客写一段开场白",
+        "project": "个人空间",
+        "priority": "high",
+        "status": "doing",
+        "due": "2026-10-26",
+        "note": "从喜欢的事物开始介绍自己。"
+      }
+    },
+    {
+      "kind": "tasks",
+      "data": {
+        "demo": true,
+        "title": "留 25 分钟，读一点喜欢的内容",
+        "project": "学习",
+        "priority": "normal",
+        "status": "todo",
+        "due": "2026-10-26"
+      }
+    },
+    {
+      "kind": "tasks",
+      "data": {
+        "demo": true,
+        "title": "傍晚散步，去看看今天的天空",
+        "project": "生活",
+        "priority": "low",
+        "status": "todo",
+        "due": "2026-10-26"
+      }
+    },
+    {
+      "kind": "tasks",
+      "data": {
+        "demo": true,
+        "title": "周末的游戏时间",
+        "project": "游戏",
+        "priority": "normal",
+        "status": "todo",
+        "due": "2026-10-28"
+      }
+    },
+    {
+      "kind": "habits",
+      "data": {
+        "demo": true,
+        "title": "认真喝水",
+        "type": "count",
+        "target": 8,
+        "unit": "杯",
+        "checks": {
+          "2026-10-26": 3
+        }
+      }
+    },
+    {
+      "kind": "habits",
+      "data": {
+        "demo": true,
+        "title": "读一点点",
+        "type": "number",
+        "target": 30,
+        "unit": "分钟",
+        "checks": {
+          "2026-10-26": 15
+        }
+      }
+    },
+    {
+      "kind": "habits",
+      "data": {
+        "demo": true,
+        "title": "出门走走",
+        "type": "boolean",
+        "target": 1,
+        "unit": "次",
+        "checks": {}
+      }
+    },
+    {
+      "kind": "library",
+      "data": {
+        "demo": true,
+        "title": "千恋＊万花",
+        "kind": "Galgame",
+        "creator": "柚子社",
+        "status": "playing",
+        "progress": 2,
+        "total": 6,
+        "rating": 0,
+        "tags": "日常,和风,路线",
+        "note": "示例收藏，换成你正在进行的故事吧。",
+        "cover": "/assets/flower-03.webp",
+        "favorite": true,
+        "route": "共通线 → 下一段故事"
+      }
+    },
+    {
+      "kind": "library",
+      "data": {
+        "demo": true,
+        "title": "喫茶ステラと死神の蝶",
+        "kind": "Galgame",
+        "creator": "柚子社",
+        "status": "wish",
+        "progress": 0,
+        "total": 5,
+        "rating": 0,
+        "tags": "咖啡,日常",
+        "note": "给闲暇留一杯咖啡的时间。",
+        "cover": "/assets/cafe-00.webp",
+        "favorite": true,
+        "route": "尚未开始"
+      }
+    },
+    {
+      "kind": "library",
+      "data": {
+        "demo": true,
+        "title": "葬送的芙莉莲",
+        "kind": "番剧",
+        "creator": "MADHOUSE",
+        "status": "playing",
+        "progress": 8,
+        "total": 28,
+        "rating": 0,
+        "tags": "旅途,治愈",
+        "note": "示例条目，不代表实际观看记录。",
+        "cover": "/assets/flower-32.webp",
+        "favorite": false,
+        "route": ""
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-20",
+        "steps": 7380,
+        "resting": 1500,
+        "active": 350,
+        "intake": 0,
+        "exercise": 38,
+        "weight": 0,
+        "water": 1800,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-20",
+        "start": "2026-10-19T23:30:00+08:00",
+        "end": "2026-10-20T07:30:00+08:00",
+        "score": 88,
+        "deep": 118,
+        "light": 242,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-21",
+        "steps": 6950,
+        "resting": 1500,
+        "active": 330,
+        "intake": 0,
+        "exercise": 35,
+        "weight": 0,
+        "water": 1700,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-21",
+        "start": "2026-10-20T23:30:00+08:00",
+        "end": "2026-10-21T07:30:00+08:00",
+        "score": 87,
+        "deep": 115,
+        "light": 245,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-22",
+        "steps": 6520,
+        "resting": 1500,
+        "active": 310,
+        "intake": 0,
+        "exercise": 32,
+        "weight": 0,
+        "water": 1600,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-22",
+        "start": "2026-10-21T23:30:00+08:00",
+        "end": "2026-10-22T07:30:00+08:00",
+        "score": 86,
+        "deep": 112,
+        "light": 248,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-23",
+        "steps": 6090,
+        "resting": 1500,
+        "active": 290,
+        "intake": 0,
+        "exercise": 29,
+        "weight": 0,
+        "water": 1500,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-23",
+        "start": "2026-10-22T23:30:00+08:00",
+        "end": "2026-10-23T07:30:00+08:00",
+        "score": 85,
+        "deep": 109,
+        "light": 251,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-24",
+        "steps": 5660,
+        "resting": 1500,
+        "active": 270,
+        "intake": 0,
+        "exercise": 26,
+        "weight": 0,
+        "water": 1400,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-24",
+        "start": "2026-10-23T23:30:00+08:00",
+        "end": "2026-10-24T07:30:00+08:00",
+        "score": 84,
+        "deep": 106,
+        "light": 254,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-25",
+        "steps": 5230,
+        "resting": 1500,
+        "active": 250,
+        "intake": 0,
+        "exercise": 23,
+        "weight": 0,
+        "water": 1300,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-25",
+        "start": "2026-10-24T23:30:00+08:00",
+        "end": "2026-10-25T07:30:00+08:00",
+        "score": 83,
+        "deep": 103,
+        "light": 257,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "health",
+      "data": {
+        "demo": true,
+        "date": "2026-10-26",
+        "steps": 4800,
+        "resting": 1500,
+        "active": 230,
+        "intake": 0,
+        "exercise": 20,
+        "weight": 0,
+        "water": 1200,
+        "mood": 4,
+        "note": "示例记录"
+      }
+    },
+    {
+      "kind": "sleep",
+      "data": {
+        "demo": true,
+        "date": "2026-10-26",
+        "start": "2026-10-25T23:30:00+08:00",
+        "end": "2026-10-26T07:30:00+08:00",
+        "score": 82,
+        "deep": 100,
+        "light": 260,
+        "rem": 100,
+        "awake": 20,
+        "awakenings": 2,
+        "heartRate": 58,
+        "note": "示例睡眠记录"
+      }
+    },
+    {
+      "kind": "posts",
+      "data": {
+        "demo": true,
+        "title": "把生活，写成自己喜欢的样子",
+        "slug": "a-place-of-my-own",
+        "excerpt": "在效率之外，给喜欢的故事留一个位置。关于这个个人空间，以及那些值得被好好记住的日常。",
+        "content": "# 留一个属于自己的角落\n\n这是第一篇示例文章。你可以在写作间修改它，也可以从空白开始。\n\n## 日常，也值得被记录\n\n一杯刚好的咖啡，一段没舍得快进的剧情，一次终于完成的小任务。它们看起来普通，却构成了生活最具体的样子。\n\n> 不必把每一天过成高光时刻。平凡的章节，也有自己的光。\n\n## 从喜欢的事情出发\n\n这个空间把工作、生活和兴趣放在一起。认真做事，也认真休息。\n\n- 给正在追的故事留一张书签\n- 为下一次出发存好进度\n- 记下今天的小小收获\n\n## 慢慢更新\n\n关于技术、作品，以及生活里遇到的有趣瞬间，都会陆续写在这里。",
+        "category": "日常手记",
+        "tags": "生活,个人空间",
+        "status": "published",
+        "publishAt": "2026-10-25T14:12:19.996Z",
+        "featured": true
+      }
+    },
+    {
+      "kind": "posts",
+      "data": {
+        "demo": true,
+        "title": "一个可以搬走的个人网站",
+        "slug": "portable-personal-site",
+        "excerpt": "让代码、内容与数据都有自己的位置，迁移不再意味着重新开始。",
+        "content": "# 一个可以搬走的个人网站\n\n这是技术文章示例。\n\n## 清晰的边界\n\n代码用于描述行为，数据库用于保存记录，图片放在独立目录。\n\n```javascript\nconst daily = { focus: true, joy: true };\nconsole.log(daily);\n```\n\n## 保留自己的选择\n\n工具会变化，记录值得留下。定期备份，让下一次迁移更从容。",
+        "category": "技术笔记",
+        "tags": "开发,自托管",
+        "status": "published",
+        "publishAt": "2026-10-24T14:12:19.996Z",
+        "featured": false
+      }
+    },
+    {
+      "kind": "posts",
+      "data": {
+        "demo": true,
+        "title": "故事停下之后，还有后日谈",
+        "slug": "after-the-story",
+        "excerpt": "通关不是终点。那些留在记忆里的角色、音乐与片段，仍然参与着我们的日常。",
+        "content": "# 故事之后\n\n这是作品随笔示例，你可以换成自己的体验。\n\n## 为什么喜欢日常回\n\n没有紧迫的目标，只有人物之间慢慢生长的默契。\n\n## 留下回声\n\n在收藏里记一句感想，给这一段旅途好好收尾。",
+        "category": "作品随笔",
+        "tags": "Galgame,故事",
+        "status": "published",
+        "publishAt": "2026-10-23T14:12:19.996Z",
+        "featured": false
+      }
+    }
+  ]
+}
