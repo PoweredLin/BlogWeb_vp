@@ -2,7 +2,7 @@ name: lin-notebook
 services:
   space:
     build: .
-    image: lin-notebook:9
+    image: lin-notebook:10
     restart: unless-stopped
     init: true
     ports:
@@ -13,6 +13,7 @@ services:
       COOKIE_SECURE: "true"
       FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-172.30.17.1}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      EMAIL_ENCRYPTION_KEY: ${EMAIL_ENCRYPTION_KEY:-}
     volumes:
       - ./data:/app/data
       - ./backups:/app/backups

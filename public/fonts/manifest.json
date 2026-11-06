@@ -1,0 +1,26 @@
+[
+  {
+    "file": "inter-latin.woff2",
+    "source": "https://unpkg.com/@fontsource-variable/inter@5.2.8/files/inter-latin-wght-normal.woff2",
+    "bytes": 48256,
+    "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+  },
+  {
+    "file": "lora-latin.woff2",
+    "source": "https://unpkg.com/@fontsource-variable/lora@5.2.8/files/lora-latin-wght-normal.woff2",
+    "bytes": 37788,
+    "sha256": "ddb8c66035104e233fc024669183aad3738b6daa16deee2ebb1241bd0f98ace1"
+  },
+  {
+    "file": "Inter-OFL.txt",
+    "source": "https://unpkg.com/@fontsource-variable/inter@5.2.8/LICENSE",
+    "bytes": 4477,
+    "sha256": "3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345"
+  },
+  {
+    "file": "Lora-OFL.txt",
+    "source": "https://unpkg.com/@fontsource-variable/lora@5.2.8/LICENSE",
+    "bytes": 4563,
+    "sha256": "948aed765160f7b974105606c21994715a171f89fca48e57bf1e0a23aca0bef1"
+  }
+]

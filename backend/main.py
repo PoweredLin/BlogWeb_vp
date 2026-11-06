@@ -39,14 +39,17 @@ class Boundary:
         async def secure_send(message):
             if message['type']=='http.response.start':
                 h=message.setdefault('headers',[])
-                h.extend([(b'x-content-type-options',b'nosniff'),(b'referrer-policy',b'same-origin'),(b'x-frame-options',b'SAMEORIGIN' if path.startswith('/space-tools/') else b'DENY'),(b'content-security-policy',b"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'")])
+                h.extend([(b'x-content-type-options',b'nosniff'),(b'referrer-policy',b'same-origin'),(b'x-frame-options',b'SAMEORIGIN' if path.startswith('/space-tools/') else b'DENY'),(b'content-security-policy',b"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'")])
+                if path in ('/','/home') or path=='/admin' or path.startswith('/admin/'):
+                    from .reference_docs import EMBED_ORIGINS
+                    h[:]=[(k,v.replace(b"frame-src 'self';",("frame-src 'self' "+' '.join(EMBED_ORIGINS)+';').encode())) if k==b'content-security-policy' else (k,v) for k,v in h]
                 if path.startswith('/api') or path.startswith('/admin') or path.startswith('/space-tools'):
                     h[:]=[(k,v) for k,v in h if k.lower()!=b'cache-control']; h.append((b'cache-control',b'no-store'))
             await send(message)
         host=headers.get(b'host',b'').decode('latin1')
         if self.production and host!=urlsplit(self.site_url).netloc and host not in ('127.0.0.1:4317','localhost:4317'):
             return await respond(400,'无效主机名')
-        if path.startswith('/api') and method not in ('GET','HEAD','OPTIONS') and path!='/api/ingest':
+        if path.startswith('/api') and method not in ('GET','HEAD','OPTIONS') and path!='/api/ingest' and not path.startswith('/api/v1/'):
             origin=headers.get(b'origin',b'').decode('latin1')
             expected=self.site_url if self.production else scope['scheme']+'://'+host
             if origin!=expected: return await respond(403,'请求来源不匹配')
@@ -95,10 +98,23 @@ def create_app(data_dir=None,production=None,site_url=None,git_transport=None):
     git=GitActivity(store,git_transport)
     @asynccontextmanager
     async def lifespan(app):
-        yield
+        from .mailing import recover_interrupted, scheduler
+        from .automation import worker, recover_delivery
+        recover_interrupted(store)
+        recover_delivery(store)
+        task=asyncio.create_task(scheduler(app))
+        automation_task=asyncio.create_task(worker(app))
+        try: yield
+        finally:
+            automation_task.cancel()
+            try: await automation_task
+            except asyncio.CancelledError: pass
+            task.cancel()
+            try: await task
+            except asyncio.CancelledError: pass
         await git.close()
-    app=FastAPI(title='Lin Notebook',version='9.0.0',docs_url=None if production else '/api/docs',redoc_url=None,openapi_url=None if production else '/api/openapi.json',lifespan=lifespan)
-    app.state.store=store; app.state.production=production; app.state.secure=production or os.getenv('COOKIE_SECURE')=='true'; app.state.git=git
+    app=FastAPI(title='拾帧之间',version='10.0.0',docs_url=None if production else '/api/docs',redoc_url=None,openapi_url=None if production else '/api/openapi.json',lifespan=lifespan)
+    app.state.store=store; app.state.production=production; app.state.secure=production or os.getenv('COOKIE_SECURE')=='true'; app.state.git=git; app.state.site_url=site_url
     app.add_middleware(GZipMiddleware,minimum_size=1024)
     app.add_middleware(Boundary,store=store,production=production,site_url=site_url)
     @app.exception_handler(Problem)
@@ -114,11 +130,19 @@ def create_app(data_dir=None,production=None,site_url=None,git_transport=None):
     app.include_router(router)
     from .backups import router as backups
     app.include_router(backups)
+    from .automation import router as automation
+    app.include_router(automation)
+    from .reference_docs import router as reference_docs
+    app.include_router(reference_docs)
+    from .page_layout import router as page_layout
+    app.include_router(page_layout)
+    from .experience import router as experience
+    app.include_router(experience)
 
     @app.get('/healthz')
     def health():
         with store.connect() as db: db.execute('SELECT 1').fetchone()
-        return {'ok':True,'version':'9.0.0'}
+        return {'ok':True,'version':'10.0.0'}
 
     @app.get('/uploads/{name}')
     def upload(request:Request,name:str):
@@ -147,7 +171,7 @@ def create_app(data_dir=None,production=None,site_url=None,git_transport=None):
     @app.get('/robots.txt')
     def robots(): return PlainTextResponse('User-agent: *\nDisallow: /api/\nDisallow: /admin\nDisallow: /space-tools\nDisallow: /workspace\nDisallow: /studio\nSitemap: '+site_url+'/sitemap.xml')
 
-    @app.api_route('/api/{path:path}',methods=['GET','POST','PUT','DELETE','PATCH','OPTIONS'])
+    @app.api_route('/api/{path:path}',methods=['GET','POST','PUT','DELETE','PATCH','OPTIONS'],include_in_schema=False)
     def missing_api(path:str): return JSONResponse({'error':'接口不存在'},status_code=404)
 
     @app.get('/{path:path}')
@@ -164,13 +188,15 @@ def create_app(data_dir=None,production=None,site_url=None,git_transport=None):
             entry=ROOT/'public/tools-app/index.html'; restricted=True
         elif path=='admin' or path.startswith('admin/'):
             entry=ROOT/'public/admin-app/index.html'; restricted=True
-        elif path in ('','home','moments','albums','blog','about','archive','archives','category','categories','tag','article','articleList') or re.fullmatch('blog/[a-z0-9][a-z0-9-]{0,100}',path):
+        elif path in ('','home','moments','albums','anime','blog','about','archive','archives','category','categories','tag','article','articleList') or re.fullmatch('blog/[a-z0-9][a-z0-9-]{0,100}',path):
             entry=ROOT/'public/blog-app/index.html'; restricted=False
         else:
             # Static allowlist, never expose source, manifests, configuration or HTML entries.
             if path=='admin-app/serverConfig.json':
                 return FileResponse(ROOT/'public/admin-app/serverConfig.json',headers={'Cache-Control':'no-cache'})
             if path in ('licenses/blog-admin-MIT.txt','licenses/PureAdmin-MIT.txt','licenses/vue3-blog-MIT.txt'):
+                return FileResponse(ROOT/'public'/path,media_type='text/plain',headers={'Cache-Control':'public,max-age=3600'})
+            if path in ('fonts/Inter-OFL.txt','fonts/Lora-OFL.txt'):
                 return FileResponse(ROOT/'public'/path,media_type='text/plain',headers={'Cache-Control':'public,max-age=3600'})
             allowed=path.startswith(('blog-app/assets/','admin-app/assets/','tools-app/assets/','assets/','audio/','fonts/')) or path in {'favicon.svg','lin-icons.svg','fonts.css','styles.css','v2.css','workbench.css','space-tools.css'}
             dest=(ROOT/'public'/path).resolve()

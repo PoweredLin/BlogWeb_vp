@@ -46,14 +46,14 @@ class Store:
     def initialize(self):
         with self.connect() as db:
             version = db.execute('PRAGMA user_version').fetchone()[0]
-            if version > 9:
+            if version > 10:
                 raise RuntimeError('Database is newer than this application; refusing downgrade')
             db.execute('PRAGMA journal_mode=WAL')
             existing = db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='meta'").fetchone()
-            if existing and version < 9:
+            if existing and version < 10:
                 safety = self.directory / 'migration-safety'
                 safety.mkdir(exist_ok=True)
-                target = safety / 'before-v9.sqlite'
+                target = safety / ('before-v9.sqlite' if version < 9 else 'before-v10.sqlite')
                 if not target.exists():
                     with sqlite3.connect(target) as backup:
                         db.backup(backup)
@@ -64,6 +64,8 @@ CREATE INDEX IF NOT EXISTS records_kind ON records(kind,deleted);
 CREATE INDEX IF NOT EXISTS records_post_slug ON records(json_extract(data,'$.slug')) WHERE kind='posts' AND deleted IS NULL;
 CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY,expires INTEGER NOT NULL,userId TEXT NOT NULL DEFAULT 'owner');
 CREATE TABLE IF NOT EXISTS tokens(id TEXT PRIMARY KEY,hash TEXT NOT NULL,name TEXT NOT NULL,expires INTEGER NOT NULL,created TEXT NOT NULL,userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE IF NOT EXISTS access_tokens(id TEXT PRIMARY KEY,hash TEXT NOT NULL,prefix TEXT NOT NULL,name TEXT NOT NULL,scopes TEXT NOT NULL,expires INTEGER NOT NULL,created TEXT NOT NULL,lastUsed INTEGER NOT NULL DEFAULT 0,userId TEXT NOT NULL DEFAULT 'owner');
+CREATE TABLE IF NOT EXISTS api_idempotency(tokenId TEXT NOT NULL,key TEXT NOT NULL,hash TEXT NOT NULL,recordId TEXT NOT NULL,created TEXT NOT NULL,PRIMARY KEY(tokenId,key));
 CREATE TABLE IF NOT EXISTS ingest(token TEXT NOT NULL,key TEXT NOT NULL,hash TEXT NOT NULL,recordId TEXT NOT NULL,created TEXT NOT NULL,PRIMARY KEY(token,key));
 CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY,event TEXT NOT NULL,recordId TEXT,created TEXT NOT NULL,userId TEXT NOT NULL DEFAULT 'owner');
 CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,name TEXT NOT NULL,salt TEXT NOT NULL,hash TEXT NOT NULL,disabled INTEGER NOT NULL DEFAULT 0,created TEXT NOT NULL);
@@ -81,6 +83,15 @@ CREATE TABLE IF NOT EXISTS taxonomy(kind TEXT NOT NULL,name TEXT NOT NULL,PRIMAR
 CREATE TABLE IF NOT EXISTS journal(id TEXT PRIMARY KEY,kind TEXT NOT NULL,userId TEXT NOT NULL,data TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created TEXT NOT NULL,updated TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS journal_kind ON journal(kind);
 CREATE TABLE IF NOT EXISTS git_cache(key TEXT PRIMARY KEY,data TEXT NOT NULL,etag TEXT,updated INTEGER NOT NULL DEFAULT 0,next_attempt INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,error TEXT NOT NULL DEFAULT '');
+CREATE TABLE IF NOT EXISTS email_runs(id TEXT PRIMARY KEY,kind TEXT NOT NULL,status TEXT NOT NULL,subject TEXT NOT NULL,recipient TEXT NOT NULL,scheduledKey TEXT,created TEXT NOT NULL,finished TEXT,error TEXT NOT NULL DEFAULT '');
+CREATE UNIQUE INDEX IF NOT EXISTS email_runs_schedule ON email_runs(scheduledKey) WHERE scheduledKey IS NOT NULL;
+CREATE TABLE IF NOT EXISTS private_documents(id TEXT PRIMARY KEY,title TEXT NOT NULL,category TEXT NOT NULL DEFAULT '',content TEXT NOT NULL,version INTEGER NOT NULL DEFAULT 1,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS private_documents_updated ON private_documents(updated DESC);
+CREATE TABLE IF NOT EXISTS automation_flows(id TEXT PRIMARY KEY,name TEXT NOT NULL,template TEXT NOT NULL,config TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 0,version INTEGER NOT NULL DEFAULT 1,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS automation_runs(id TEXT PRIMARY KEY,flowId TEXT NOT NULL,snapshot TEXT NOT NULL,state TEXT NOT NULL,requestKey TEXT UNIQUE NOT NULL,result TEXT NOT NULL DEFAULT '{}',error TEXT NOT NULL DEFAULT '',attempts INTEGER NOT NULL DEFAULT 0,leaseUntil INTEGER NOT NULL DEFAULT 0,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS automation_runs_state ON automation_runs(state,leaseUntil);
+CREATE TABLE IF NOT EXISTS automation_items(sourceKey TEXT PRIMARY KEY,recordId TEXT NOT NULL,created TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS connector_cache(key TEXT PRIMARY KEY,data TEXT NOT NULL,updated INTEGER NOT NULL);
 ''')
             for table in ('records', 'sessions', 'tokens', 'audit'):
                 if 'userId' not in [r['name'] for r in db.execute(f'PRAGMA table_info({table})')]:
@@ -96,7 +107,7 @@ CREATE TABLE IF NOT EXISTS git_cache(key TEXT PRIMARY KEY,data TEXT NOT NULL,eta
                     for name in names:
                         if name.strip(): db.execute('INSERT OR IGNORE INTO taxonomy VALUES(?,?)', (kind,name.strip()))
                 set_meta(db, 'taxonomyInitialized', True)
-            db.execute('PRAGMA user_version=9')
+            db.execute('PRAGMA user_version=10')
 
 
 def meta(db, key, default=None):

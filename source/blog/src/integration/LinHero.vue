@@ -1,12 +1,15 @@
 <script setup>
-import {ref,computed,onMounted,onBeforeUnmount} from 'vue';import {request} from './service';import {useRouter} from 'vue-router';import LinIcon from './LinIcon.vue';import Waves from '@/components/WelcomeComps/waves.vue';import TypeWriter from '@/components/TypeWriter/type-writer.vue';
+import {ref,computed,onMounted,onBeforeUnmount,onActivated} from 'vue';import {request} from './service';import {useRouter} from 'vue-router';import LinIcon from './LinIcon.vue';import Waves from '@/components/WelcomeComps/waves.vue';import TypeWriter from '@/components/TypeWriter/type-writer.vue';import LinFrameIntro from './LinFrameIntro.vue';
 const router=useRouter();
-const site=ref({}),posts=ref([]),me=ref(null),index=ref(0),now=ref(new Date()),busy=ref(false),poster=ref(null),scene=ref(localStorage.getItem('lin-local-scenery')||'');
+const layout=ref({introEnabled:true,introReplay:"session",introPhotoMode:'auto',introPhotos:[]});
+const site=ref({}),posts=ref([]),me=ref(null),index=ref(0),now=ref(new Date()),busy=ref(false),poster=ref(null),scene=ref(localStorage.getItem('lin-local-scenery')||''),showIntro=ref(false),introComplete=ref(false),heroReady=ref(false);
 let rotator,clock;
 const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const mode=computed(()=>site.value.heroMode==='collage'?'collage':'poster');
+const mode=computed(()=>'poster');
 const heroList=computed(()=>{const list=Array.isArray(site.value.heroImages)?site.value.heroImages.filter(Boolean):[];return [...new Set(list.length?list:[site.value.cover||'landscape-fields'])];});
-const title=computed(()=>site.value.heroTitle||site.value.title||'Lin 的随手记');
+const introPhotos=computed(()=>layout.value.introPhotoMode==='custom'?layout.value.introPhotos:[...new Set([...heroList.value.map(imageUrl),...posts.value.map(post=>post.cover).filter(Boolean)])].slice(0,8));
+const siteName=computed(()=>site.value.title||'林间笔记');
+const title=computed(()=>site.value.heroTitle||site.value.title||'林间笔记');
 const tail=computed(()=>site.value.heroTail==='的随记'?'':site.value.heroTail||'');
 const imageUrl=v=>v.startsWith('/')?v:'/assets/'+v+'.webp';
 const label=computed(()=>site.value.heroLabel||'A PLACE TO SLOW DOWN');
@@ -20,21 +23,28 @@ function scenery(value){scene.value=value;localStorage.setItem('lin-local-scener
 async function random(){busy.value=true;setTimeout(()=>{busy.value=false;if(posts.value.length)router.push('/blog/'+posts.value[Math.floor(Math.random()*posts.value.length)].slug);},300);}
 function onScroll(){if(!poster.value)return;const h=poster.value.offsetHeight||1;poster.value.style.setProperty('--poster-shift',Math.min(1,scrollY/h)*30+'px');}
 onMounted(async()=>{
- const [s,p,st]=await Promise.all([request('/api/site'),request('/api/public').then(x=>x.posts).catch(()=>[]),request('/api/status').catch(()=>({}))]);
- site.value=s||{};posts.value=p||[];me.value=st?.user||null;
+ const [initial,st]=await Promise.all([request('/api/public/bootstrap').catch(()=>({site:{},featuredPosts:[],layout:{introEnabled:false,introReplay:'session'}})),request('/api/status').catch(()=>({}))]);
+ const s=initial.site,p=initial.featuredPosts,l=initial.layout||{introEnabled:false,introReplay:'session'};
+ site.value=s||{};posts.value=p||[];me.value=st?.user||null;layout.value=l;showIntro.value=l.introEnabled!==false&&s?.motion!==false;heroReady.value=true;
  clock=setInterval(()=>now.value=new Date(),60000);
  if(!reduced&&s?.motion!==false&&heroList.value.length>1)rotator=setInterval(()=>{if(!document.hidden)index.value=(index.value+1)%heroList.value.length;},Math.min(60,Math.max(3,Number(s?.heroInterval)||8))*1000);
  if(!reduced&&s?.motion!==false)addEventListener('scroll',onScroll,{passive:true});
 });
+// The home page is kept alive, so coming back to it replays the intro and re-runs the poster entrance.
+const heroCycle=ref(0),titleChars=computed(()=>[...title.value]);
+const fireflies=Array.from({length:16},(_,i)=>({left:(i*37%97)+'%',top:(20+i*53%70)+'%','--d':(i*.7%6)+'s','--t':(7+i%5*1.6)+'s','--x':((i%2?1:-1)*(20+i*13%40))+'px'}));
+let firstActivation=true;
+onActivated(()=>{if(firstActivation){firstActivation=false;return;}if(!heroReady.value||layout.value.introEnabled===false||site.value.motion===false)return;introComplete.value=false;heroCycle.value++;showIntro.value=true;});
 onBeforeUnmount(()=>{clearInterval(rotator);clearInterval(clock);removeEventListener('scroll',onScroll);});
 </script>
 <template>
-<section v-if="mode==='poster'" ref="poster" class="lin-poster" data-poster :style="{'--poster-veil':veil}">
+<section v-if="mode==='poster'" ref="poster" class="lin-poster" :class="{'is-waiting':!heroReady||(showIntro&&!introComplete)}" data-poster :style="{'--poster-veil':veil}">
  <div class="poster-stack" aria-hidden="true"><img v-for="(img,i) in heroList" :key="img" :src="imageUrl(img)" :class="{on:i===index}" :fetchpriority="i===0?'high':'low'" alt=""></div>
  <div class="poster-veil" aria-hidden="true"></div>
- <div class="poster-body">
+ <div class="poster-fireflies" aria-hidden="true"><i v-for="(f,i) in fireflies" :key="i" :style="f"/></div>
+ <div class="poster-body" :key="heroCycle">
   <span class="poster-label"><i/>{{label}}</span>
-  <h1 class="poster-title">{{title}}<em v-if="tail">{{tail}}</em></h1>
+  <h1 class="poster-title" :aria-label="title+(tail||'')"><span v-for="(ch,i) in titleChars" :key="i" class="ch" :style="{'--i':i}" aria-hidden="true">{{ch}}</span><em v-if="tail" aria-hidden="true">{{tail}}</em></h1>
   <div class="poster-say"><span v-if="reduced || site.motion===false">{{sayings[0]}}</span><TypeWriter v-else-if="sayings.length && site.motion!==false" :typeList="sayings" size="1em"/></div>
   <div class="poster-actions"><a href="#latest" class="lin-primary">翻开随手记 <LinIcon name="arrow"/></a><button class="lin-random" @click="random" :disabled="busy||!posts.length"><LinIcon name="spark" :class="{spinning:busy}"/>随便逛逛</button></div>
  </div>
@@ -43,10 +53,23 @@ onBeforeUnmount(()=>{clearInterval(rotator);clearInterval(clock);removeEventList
  <Waves height="5rem"/>
 </section>
 <section v-else class="lin-hero"><div class="lin-hero-copy"><span class="lin-eyebrow"><i/> A SMALL CORNER OF MY WORLD</span><p class="lin-greeting">{{greeting()}}</p><h1>把日子写成<br><em>喜欢的模样<span class="hero-spark">✳</span></em></h1><p class="lin-hero-desc">{{site.subtitle}}</p><div class="hero-actions"><a href="#latest" class="lin-primary">翻开随手记 <LinIcon name="arrow"/></a><button class="lin-random" @click="random" :disabled="busy||!posts.length"><LinIcon name="spark" :class="{spinning:busy}"/>随便逛逛</button></div><div class="lin-coordinate"><span>日常观察员 / 偶尔写代码</span><span>{{now.toLocaleDateString('zh-CN',{month:'long',day:'numeric'})}} · 随时更新</span></div></div><div class="lin-hero-art"><div class="orbit-text">COLLECT MOMENTS · NOT THINGS ·</div><a href="/albums" class="polaroid main-photo"><img :src="'/assets/'+(scene||site.cover||'landscape-fields')+'.webp'" alt="收藏沿途的风景"/><span>今天的天空，也很好看。 <b>01 / 日常取景</b></span></a><a href="/albums" class="polaroid small-photo"><img src="/assets/landscape-study.webp" alt="一盏书桌的灯"/><span>留一点时间，给自己。</span></a><div class="lin-sticker"><LinIcon name="heart" :size="18"/> 热爱可抵岁月漫长</div><div class="scenery-switch"><button v-for="(s,i) in ['landscape-fields','landscape-dawn','landscape-fantasy']" :key="s" :class="{chosen:scene===s}" :aria-label="'换个景色 '+(i+1)+'（仅此设备）'" @click="scenery(s)">{{String(i+1).padStart(2,'0')}}</button></div><span class="scribble">keep a little wonder ↗</span></div></section>
+<div v-if="!heroReady" class="intro-loading" aria-label="正在加载首页"/>
+<LinFrameIntro v-if="showIntro" :title="layout.introTitle||siteName" :photos="introPhotos" replay="always" @reveal="introComplete=true" @done="showIntro=false;introComplete=true"/>
 <div v-if="site.showTicker!==false" class="lin-ticker"><div><span v-for="n in 4" :key="n">CODE & COFFEE <b>✦</b> 番剧放映室 <b>✦</b> 游戏存档点 <b>✦</b> SMALL JOYS <b>✦</b> 后日谈 <b>✦</b></span></div></div>
 <section id="latest" class="lin-section-heading"><div><span class="lin-eyebrow">THE LATEST PAGES</span><h2>最近写下的 <i>Notes.</i></h2></div><a href="/category">按分类翻阅 <LinIcon name="arrow" :size="17"/></a></section>
 </template>
 <style lang="scss" scoped>
+.intro-loading{position:fixed;inset:0;z-index:9998;background:#151918}
+/* Title rises in character by character with a little overshoot. */
+.poster-title .ch{display:inline-block;white-space:pre;animation:ch-rise .9s cubic-bezier(.2,1.4,.4,1) calc(.25s + var(--i)*.07s) both}
+.lin-poster.is-waiting .poster-title .ch{animation-play-state:paused}
+@keyframes ch-rise{from{opacity:0;transform:translateY(.7em) rotate(10deg) scale(.8);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.poster-title:hover .ch{animation:ch-wave .6s ease calc(var(--i)*.05s)}
+@keyframes ch-wave{50%{transform:translateY(-.12em);color:#f1bf5b}}
+/* Fireflies drifting over the poster — the "林间" part of the name. */
+.poster-fireflies{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.poster-fireflies i{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe39a;box-shadow:0 0 8px 2px #f1bf5baa,0 0 18px 4px #e6a93a55;opacity:0;animation:firefly var(--t) ease-in-out var(--d) infinite}
+@keyframes firefly{0%{opacity:0;transform:translate(0,0)}20%{opacity:.9}50%{opacity:.35;transform:translate(var(--x),-40px)}80%{opacity:.85}100%{opacity:0;transform:translate(calc(var(--x)*-.5),-90px)}}
 .lin-poster{position:relative;width:100%;height:calc(100vh - 14px);min-height:620px;max-height:1000px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#1c2422;color:#fff}
 .poster-stack{position:absolute;inset:0;z-index:1;transform:translate3d(0,var(--poster-shift,0),0);will-change:transform}
 .poster-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;opacity:0;transform:scale(1.04);transition:opacity 1.1s ease}
@@ -76,8 +99,15 @@ onBeforeUnmount(()=>{clearInterval(rotator);clearInterval(clock);removeEventList
 .strip-links a:hover{border-color:#fff}
 .poster-cue{position:absolute;left:50%;bottom:26px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;letter-spacing:3px;color:#ffffffc7;transform:translateX(-50%)}
 .poster-cue b{font-size:15px;animation:poster-bounce 2s infinite}
-@keyframes poster-in{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+/* Hold the poster entrance behind the intro so the reveal lands right as the intro dissolves. */
+.lin-poster.is-waiting .poster-body,.lin-poster.is-waiting .poster-body>*{animation-play-state:paused}
+.lin-poster.is-waiting .poster-stack{filter:blur(6px) brightness(.7)}
+.lin-poster.is-waiting .poster-stack img.on{animation-play-state:paused}
+.lin-poster:not(.is-waiting) .poster-stack{animation:poster-settle 1.6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes poster-settle{from{filter:blur(6px) brightness(.7)}to{filter:none}}
+@keyframes poster-in{from{opacity:0;transform:translateY(26px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 @keyframes poster-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(6px);opacity:1}}
+@media(prefers-reduced-motion:reduce){.lin-poster .poster-stack,.lin-poster .poster-body,.lin-poster .poster-body>*,.lin-poster .poster-title .ch{animation:none!important;filter:none!important}.poster-fireflies{display:none}}
 @media(max-width:800px){
  .lin-poster{height:calc(100vh - 68px);min-height:540px}
  .poster-body{padding-top:70px}

@@ -1,1 +1,6 @@
-/* System fonts keep this project portable and usable without a CDN. */
+/* Self-hosted OFL fonts; pinned sources and hashes in fonts/manifest.json. */
+@font-face{font-family:Inter;src:url('/fonts/inter-latin.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:Lora;src:url('/fonts/lora-latin.woff2') format('woff2');font-style:normal;font-weight:400 700;font-display:swap}
+:root{--lin-font-sans:Inter,"PingFang SC","Microsoft YaHei",sans-serif;--lin-font-serif:Lora,"Songti SC","Noto Serif CJK SC",serif}
+html body,html body button,html body input,html body textarea,html body select{font-family:var(--lin-font-sans)}
+.lin-brand .lin-mark,.poster-title,.lin-section-heading h2 i,.about-signoff{font-family:var(--lin-font-serif)}

@@ -25,7 +25,7 @@ def main():
         dest.mkdir(parents=True)
         with store.connect() as db,sqlite3.connect(dest/'space.sqlite') as target: db.backup(target)
         shutil.copytree(store.directory/'uploads',dest/'uploads')
-        (dest/'backup.txt').write_text('Lin Notebook full site backup\n'+stamp()+'\nStop writes during backup to keep uploads consistent.\n',encoding='utf-8')
+        (dest/'backup.txt').write_text('拾帧之间 full site backup\n'+stamp()+'\nStop writes during backup to keep uploads consistent.\n',encoding='utf-8')
         print('Full backup complete:',dest); return
     store.initialize()
     if args.command=='check':

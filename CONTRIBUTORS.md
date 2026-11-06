@@ -14,7 +14,7 @@
 
 ## AI 辅助开发
 
-- Codex：辅助实现 V9 FastAPI 后端迁移、Vue 集成、Git 动态缓存、测试、Docker 配置及文档。
+- Codex：辅助实现 V10 FastAPI 后端迁移、Vue 集成、Git 动态缓存、测试、Docker 配置及文档。
 - WorkBuddy：参与此前版本的首页大屏、设置与界面调整。
 
 AI 工具不是独立项目维护者。GitHub 的 Contributors 列表根据提交历史与账号邮箱关联自动生成；本文用于补充维护工作、上游来源与工具参与范围，不改写已有提交作者，也不授予任何仓库访问权限。

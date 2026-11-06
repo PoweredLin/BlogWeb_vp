@@ -316,6 +316,20 @@
             "电影"
           ]
         },
+        "season": {
+          "default": "",
+          "type": "string",
+          "pattern": "^$|^[0-9]{4}-Q[1-4]$"
+        },
+        "broadcast": {
+          "default": "",
+          "type": "string",
+          "maxLength": 100
+        },
+        "public": {
+          "default": false,
+          "type": "boolean"
+        },
         "creator": {
           "default": "",
           "type": "string",

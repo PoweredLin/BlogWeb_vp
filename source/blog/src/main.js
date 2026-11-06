@@ -26,3 +26,6 @@ app.use(router).mount('#app');
 
 import './integration/patches.scss';
 import './integration/lin.scss';
+import './integration/blog-fx.scss';
+import {startBlogFx} from './integration/blog-fx.js';
+startBlogFx();

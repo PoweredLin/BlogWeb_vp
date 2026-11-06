@@ -1,8 +1,8 @@
-# V9 架构与开发
+# V10 架构与开发
 
 ## 运行结构
 
-浏览器 → 宝塔 Nginx HTTPS → `127.0.0.1:4317` → FastAPI/Uvicorn → SQLite 与上传目录。
+浏览器 → 宝塔 Nginx HTTPS → `127.0.0.1:<宿主机端口>` → FastAPI/Uvicorn → SQLite 与上传目录。容器内固定监听 4317，宿主机端口按现场配置。
 
 单个 Python 服务处理 API 和构建后的静态文件。Node 只用于构建及部分回归测试，运行容器不启动 Node、Express、Redis 或 MySQL。适合现有 2 核 4G 服务器。
 
@@ -26,11 +26,11 @@
 
 ## 数据兼容
 
-SQLite 仍使用 V8 的表、JSON 字段和上传文件名。V9 增加 Git 缓存表、文章链接索引，将 `user_version` 升至 9。已有数据首次启动前自动保存 `data/migration-safety/before-v9.sqlite`。迁移不会插入演示文章，也不会替换站主账号。
+SQLite 兼容 V8/V9 的表、JSON 字段和上传文件名。V10 增加 Access Token、邮件、自动化、私有文档、页面布局和连接器缓存表，将 `user_version` 升至 10。已有数据首次启动前自动保存 `data/migration-safety/before-v10.sqlite`；V9 迁移副本和完整站点备份仍需按升级手册另行保留。迁移不会插入演示文章，也不会替换站主账号。
 
 密码保留 Node scrypt 参数 `N=16384,r=8,p=1,dklen=64`，盐按文本使用；旧的短密码仍可验证，新密码要求至少 10 字符。会话仍为 HttpOnly/SameSite=Strict Cookie，数据库只存令牌哈希。上线后建议通过界面换掉历史弱密码。
 
-`backend/contracts/v8.json` 是从旧 Zod 模型导出的接口契约与测试演示数据，运行时由 Python 校验，并补充日期、睡眠分期、收藏进度等跨字段约束。新功能应同时修改契约/校验与测试。
+`backend/contracts/v8.json` 是从旧 Zod 模型导出的接口契约与测试演示数据，运行时由 Python 校验，并补充日期、睡眠分期、收藏进度等跨字段约束。新功能应同时修改契约/校验与测试。演示启动器固定使用 `data/demo-v10`，不会指向生产数据。
 
 ## 性能边界
 
@@ -45,6 +45,14 @@ SQLite 仍使用 V8 的表、JSON 字段和上传文件名。V9 增加 Git 缓�
 - Compose 限制 768MiB 内存、1.5 CPU、128 个进程。构建阶段不受这个运行限额约束，建议本地构建镜像后上传服务器。
 
 公开列表保留原版全文搜索所需 `searchText`，文章数量很大时响应体也会增大。若以后达到数千篇，应将搜索分页移到后端，不能仅靠增加内存解决。
+
+## V10 新模块
+
+- `backend/automation.py`：固定模板的轻量自动化队列；只允许白名单来源和人工确认，不执行任意插件代码。
+- `backend/mailing.py`：SMTP 密钥加密、手动发送、周报计划和未知投递状态恢复。
+- `backend/reference_docs.py`：站主私有 Markdown、Mermaid 流程图和白名单外站文档。
+- `backend/page_layout.py`：有版本的首页/个人空间布局配置。
+- `scripts/local-ai-submit.py`：本地 AI 使用 Access Token 的示例客户端。
 
 ## 本地开发
 

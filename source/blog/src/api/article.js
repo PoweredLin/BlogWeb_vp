@@ -1,5 +1,5 @@
 import {articles,request,result,article,page} from '@/integration/service';
-export async function homeGetArticleList(current,size){return result(page((await articles()).sort((a,b)=>a.is_top-b.is_top || (a.order||999)-(b.order||999)),current,size));}
+export async function homeGetArticleList(current,size){const data=await request(`/api/public/catalog/posts?page=${current}&pageSize=${size}`);return result({list:data.items.map(article),total:data.total,current:Number(current),size:Number(size)});}
 export async function blogTimelineGetArticleList(current,size){const all=await articles(),part=page(all,current,size);return result({...part,list:[...new Set(part.list.map(p=>p.createdAt.slice(0,4)))].map(year=>({year,articleList:part.list.filter(p=>p.createdAt.startsWith(year))}))});}
 export async function getArticleListByTagId(p){return result(page((await articles()).filter(a=>a.tagNameList.includes(p.id)),p.current,p.size));}
 export async function getArticleListByCategoryId(p){return result(page((await articles()).filter(a=>a.category_id===p.id),p.current,p.size));}

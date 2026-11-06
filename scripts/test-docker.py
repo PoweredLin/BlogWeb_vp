@@ -17,7 +17,7 @@ try:
            '--security-opt=no-new-privileges:true', '--memory=768m', '--cpus=1.5',
            '--pids-limit=128', '--tmpfs=/tmp:size=64m,noexec,nosuid',
            '-p', '127.0.0.1:4359:4317', '-e', 'SITE_URL=https://blog.test',
-           '-v', volume + ':/app/data', 'lin-notebook:9')
+           '-v', volume + ':/app/data', 'lin-notebook:10')
     with httpx.Client(base_url='http://127.0.0.1:4359', headers={'Host':'127.0.0.1:4317'}, timeout=10, trust_env=False) as client:
         for attempt in range(60):
             try:

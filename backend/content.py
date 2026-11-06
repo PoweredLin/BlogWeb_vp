@@ -194,10 +194,15 @@ def journal_row(db,r):
 
 def image_visible(db,url):
     s=site(db)
+    layout=meta(db,'pageLayout',{})
+    if layout.get('introPhotoMode')=='custom' and url in layout.get('introPhotos',[]): return True
     if url in [s['avatarBg'],s['coverImage'],s['blogBackground'],*s['heroImages']]: return True
     if any(json.loads(r['data']).get('avatar')==url for r in db.execute('SELECT data FROM member_profiles')): return True
     if any(p['cover']==url or '('+url+')' in p['content'] for p in public_posts(db)): return True
+    imported={r['recordId'] for r in db.execute('SELECT recordId FROM automation_items')} if layout.get('animeAutoPublic',True) else set()
+    for item in records(db,'library','owner'):
+        if item.get('kind')=='番剧' and (item.get('public') is True or item['id'] in imported) and item.get('cover')==url: return True
     for r in db.execute('SELECT data FROM journal'):
         p=json.loads(r['data'])
-        if p['status']=='published' and any(i['url']==url for i in p['images']): return True
+        if p.get('status')=='published' and any((i if isinstance(i,str) else i.get('url') if isinstance(i,dict) else None)==url for i in p.get('images',[])): return True
     return False

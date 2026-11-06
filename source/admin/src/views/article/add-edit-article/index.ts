@@ -141,12 +141,15 @@ export function useArticle() {
         fullscreen: true,
         text: "图片上传中"
       });
-      const res = await imgUpload(articleForm.coverList[0]);
-      if (res.code == 0) {
-        const { url } = res.result;
-        articleForm.article_cover = url;
+      try {
+        const res = await imgUpload(articleForm.coverList[0]);
+        if (res.code == 0) {
+          const { url } = res.result;
+          articleForm.article_cover = url;
+        }
+      } finally {
+        upLoadLoading.close();
       }
-      upLoadLoading.close();
     }
   }
 

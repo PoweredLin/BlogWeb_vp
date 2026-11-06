@@ -7,4 +7,6 @@ markdown-it-py==4.2.0
 linkify-it-py==2.0.3
 jsonschema==4.26.0
 python-dotenv==1.2.2
+cryptography==50.0.2
+tzdata==2026.6
 pygments==2.20.0

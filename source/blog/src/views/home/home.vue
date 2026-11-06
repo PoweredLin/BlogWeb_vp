@@ -8,6 +8,7 @@ import { getAllTag } from "@/api/tag";
 import { homeGetStatistic } from "@/api/home";
 import { randomFontColor, numberFormate } from "@/utils/tool";
 
+import LinHomeModules from "@/integration/LinHomeModules.vue";
 import PageHeader from "@/components/PageHeader/index.vue";
 import HomeArticleList from "@/components/HomeArticle/home-article-list.vue";
 import RightSide from "@/components/RightSide/right-side.vue";
@@ -119,6 +120,7 @@ onMounted(async () => {
 
 <template>
   <PageHeader />
+  <LinHomeModules>
   <div class="home_center_box">
     <el-row>
       <el-col :xs="24" :sm="18">
@@ -256,6 +258,7 @@ onMounted(async () => {
       </el-col>
     </el-row>
   </div>
+  </LinHomeModules>
 </template>
 
 <style lang="scss" scoped>

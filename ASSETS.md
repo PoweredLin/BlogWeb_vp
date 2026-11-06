@@ -1,6 +1,6 @@
 # 来源与许可证
 
-本项目基于用户提供的 Vue 3 博客与后台源码二次开发，保留并修改其界面，后端在 V9 改为 FastAPI。不是原作者维护的分支。
+本项目基于用户提供的 Vue 3 博客与后台源码二次开发，保留并修改其界面，后端在 V10 改为 FastAPI。不是原作者维护的分支。
 
 - 原博客：Mr Zhang / 小张的个人博客，<https://gitee.com/mrzym/stable-version-of-blog>，原预览 <http://mrzym.top>。
 - 博客 MIT 许可：`source/LICENSE-MrZhang`、`public/licenses/vue3-blog-MIT.txt`。

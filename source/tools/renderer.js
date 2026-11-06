@@ -15,6 +15,11 @@ function nodes(markup) {
       props[name]=['checked','selected','disabled','multiple','readonly','required','open'].includes(name)?true:value;
     }
     if(props['data-id']) props.key=node.tagName+':'+props['data-id'];
+    if(node.tagName==='IMG') {
+      const fallback='/assets/flower-03.webp';
+      if(!/^\/(assets|uploads)\/[\w.-]+$/.test(props.src||'')) props.src=fallback;
+      props.onError=e=>{const image=e.target;if(image.getAttribute('src')!==fallback)image.src=fallback;};
+    }
     return h(node.tagName.toLowerCase(),props,[...node.childNodes].map(convert));
   };
   return [...template.content.childNodes].map(convert);

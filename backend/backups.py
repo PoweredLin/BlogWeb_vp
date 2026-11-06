@@ -22,7 +22,7 @@ def export(request:Request):
         for path in (store.directory/'uploads').iterdir():
             owner=db.execute('SELECT userId FROM upload_owners WHERE name=?',(path.name,)).fetchone()
             if path.is_file() and (not owner or owner['userId']=='owner'): uploads[path.name]=base64.b64encode(path.read_bytes()).decode()
-        data={'format':'daily-space-v1','exported':stamp(),'profile':meta(db,'profile',DEFAULT_PROFILE),'story':meta(db,'story',DEFAULT_STORY),'records':[dict(r) for r in db.execute("SELECT * FROM records WHERE userId='owner'")],'uploads':uploads}
+        data={'format':'daily-space-v1','exported':stamp(),'profile':meta(db,'profile',DEFAULT_PROFILE),'story':meta(db,'story',DEFAULT_STORY),'records':[dict(r) for r in db.execute("SELECT * FROM records WHERE userId='owner'")],'documents':[dict(r) for r in db.execute('SELECT * FROM private_documents ORDER BY updated,id')],'uploads':uploads}
     return JSONResponse(data,headers={'Content-Disposition':f'attachment; filename="daily-space-{day()}.json"'})
 
 
@@ -30,8 +30,9 @@ def export(request:Request):
 def restore(request:Request,body:dict):
     if body.get('format')!='daily-space-v1': fail(400,'备份格式无效')
     p=validate_schema(CONTRACT['profileSchema'],body.get('profile'))
-    story=body.get('story'); rows=body.get('records'); uploads=body.get('uploads')
+    story=body.get('story'); rows=body.get('records'); uploads=body.get('uploads'); documents=body.get('documents')
     if not isinstance(story,dict) or not isinstance(rows,list) or len(rows)>100000 or not isinstance(uploads,dict): fail(400,'备份内容无效')
+    if documents is not None and (not isinstance(documents,list) or len(documents)>10000): fail(400,'备份文档无效')
     choice(story.get('round'),[1,2]); number(story.get('points'),-100,200); choice(story.get('phase'),['normal','transition','epilogue'])
     number(story.get('lastClick'),0,2**53); number(story.get('scene'),0,2**53,True); text(story.get('lastLine'),1000)
     if not isinstance(story.get('unlocks'),dict) or not isinstance(story.get('seen'),list) or len(story['seen'])>100: fail(400,'故事存档无效')
@@ -39,6 +40,15 @@ def restore(request:Request,body:dict):
     for value in story['seen']: text(value,1000)
     store=request.app.state.store; ids=set(); decoded={}
     with store.connect() as db:
+        document_ids=set()
+        for doc in documents or []:
+            if not isinstance(doc,dict): fail(400,'备份文档无效')
+            try: UUID(doc.get('id',''))
+            except (ValueError,TypeError): fail(400,'备份文档 ID 无效')
+            if doc['id'] in document_ids: fail(400,'备份包含重复文档')
+            document_ids.add(doc['id']); text(doc.get('title'),180,1,True); text(doc.get('category',''),80,0,True); text(doc.get('content'),200000)
+            number(doc.get('version'),1,2**53,True)
+            for key in ('created','updated'): text(doc.get(key),100,1)
         for r in rows:
             if not isinstance(r,dict): fail(400,'备份记录无效')
             try: UUID(r.get('id','')); data=json.loads(r.get('data',''))
@@ -85,6 +95,9 @@ def restore(request:Request,body:dict):
                 if not dest.exists(): dest.write_bytes(raw); created.append(dest)
                 db.execute("INSERT OR IGNORE INTO upload_owners VALUES(?,'owner')",(name,))
             db.execute("DELETE FROM records WHERE userId='owner'")
+            if documents is not None:
+                db.execute('DELETE FROM private_documents')
+                db.executemany('INSERT INTO private_documents(id,title,category,content,version,created,updated) VALUES(?,?,?,?,?,?,?)',[(d['id'],d['title'],d.get('category',''),d['content'],d['version'],d['created'],d['updated']) for d in documents])
             db.execute("DELETE FROM ingest WHERE token IN (SELECT id FROM tokens WHERE userId='owner')")
             for r in rows:
                 db.execute('INSERT INTO records VALUES(?,?,?,?,?,?,?,?)',(r['id'],r['kind'],r['data'],r['version'],r['created'],r['updated'],r.get('deleted'),'owner'))

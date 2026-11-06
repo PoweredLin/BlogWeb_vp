@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import LinImage from "@/integration/LinImage.vue";
+import LinSiteStatus from "@/integration/LinSiteStatus.vue";
 import { useRouter } from "vue-router";
 
 import blogAvatar from "@/assets/img/blogAvatar.png";
@@ -37,7 +38,7 @@ const operate = (op, val) => {
 <template>
   <div class="info-background"><LinImage :src="configDetail.avatar_bg" alt="站主收藏的风景" :preview="configDetail.previewImages!==false"/></div>
   <div class="info-avatar">
-    <router-link to="/"><el-avatar :src="configDetail.blog_avatar || avatar" /> </router-link>
+    <router-link to="/" aria-label="林间笔记首页"><el-avatar src="/favicon.svg" /> </router-link>
     <span class="blog-name">{{ configDetail.blog_name }} </span>
   </div>
   <div class="personal-say">{{ configDetail.personal_say }}</div>
@@ -61,6 +62,7 @@ const operate = (op, val) => {
       </span>
     </span>
   </div>
+  <LinSiteStatus compact/>
   <div v-if="configDetail.git_ee_link" class="git-ee flex_r_around">
     <span
       class="git-ee__item button-animated"

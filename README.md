@@ -1,4 +1,4 @@
-# Lin 的随手记 · V9
+# 林间笔记 · V10
 
 Vue 3 博客、个人空间与创作管理，FastAPI + SQLite 后端，Docker 部署。保留 V8 的两套空间主题、博客布局、生活记录与创作功能，兼容已有数据库及上传图片。
 
@@ -14,11 +14,25 @@ Vue 3 博客、个人空间与创作管理，FastAPI + SQLite 后端，Docker �
 
 ## 文档
 
+- [本轮发布、Git 上传与生产部署验收](docs/RELEASE-V10.md)
+- [两篇待发布博文与 JSON 草稿导入包](docs/posts/README.md)
+- [开发札记：公开与私人边界](docs/开发札记-01-个人网站的公开与私人边界.md)
+- [开发札记：小服务器上的接口与自动化](docs/开发札记-02-小服务器上的接口与自动化.md)
+- [开发札记：主题、字体与前端交接](docs/开发札记-03-主题字体与前端交接.md)
+
+- [个人网站平台化升级：可行性分析与分阶段建议](docs/个人网站平台化升级-可行性分析.md)
+- [Claude 前端设计交接：首页电影式开场与个人空间提示词](docs/Claude前端设计交接.md)
+- [Git 使用：提交、推送、拉取、回退与仓库配置](docs/GIT.md)
+- [宝塔部署操作手册：按顺序上传镜像、迁移数据并上线](docs/宝塔部署操作手册.md)
+- [V9 → V10 线上升级与回滚](docs/V10-upgrade-and-rollback.md)
 - [部署、宝塔配置、V8 数据迁移、备份与回滚](docs/DEPLOY.md)
 - [功能与角色权限](docs/FEATURES.md)
+- [私有文档书架与 Mermaid 流程图](docs/private-documents.md)
 - [架构、本地开发和性能边界](docs/ARCHITECTURE.md)
 - [安全测试与验证记录](docs/SECURITY.md)
 - [素材来源和许可证](ASSETS.md)
+
+本轮升级交接与需求对照见 [V10 交接说明](docs/V10-handoff.md)。
 
 ## 本地启动
 
@@ -33,6 +47,10 @@ npm start
 ```
 
 访问 <http://127.0.0.1:4317>。已有 `data/space.sqlite` 时跳过初始化。没有通用默认密码；忘记密码使用 `npm run owner:reset`。
+
+### 体验升级版演示
+
+不想连接默认本地数据库时，运行 `npm run demo`，打开 <http://127.0.0.1:4321>。演示只使用 `data/demo-v10`，管理员为 `admin`，本机演示密码为 `DemoV10-Local!`。忘记密码时运行 `npm run owner:reset -- --data-dir data/demo-v10`。不要在公网或生产站复用演示密码。完整体验路线见 [V10 本地演示与部署说明](docs/V10-release-and-demo.md)。
 
 `.env.example` 用于生产部署，本地 HTTP 开发不要开启 production/Secure Cookie。真实 `.env`、数据、上传图片及备份不提交仓库。
 

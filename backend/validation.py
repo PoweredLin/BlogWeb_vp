@@ -105,13 +105,17 @@ def taxonomy_name(value):
 
 
 PROFILE_DEFAULTS={'avatar':'/favicon.svg','bio':'','gitProvider':'github','gitUsername':'','theme':'minimal','customWallpaper':'','wallpaperOpacity':24,'motion':True}
-SITE_DEFAULTS={'blogTheme':'paper','listStyle':'editorial','motion':True,'showTicker':True,'showSidebar':True,'previewImages':True,'blogBackground':'','coverImage':'','title':'Lin 的随手记','subtitle':'偶尔写代码，经常想太多。这里是我的一些记录。','notice':'欢迎来坐坐。关于技术、生活，以及途中遇见的故事。','cover':'landscape-fields','commentsEnabled':True,'heroMode':'poster','heroImages':['landscape-eye','landscape-fantasy','dimension-sunset','landscape-study'],'heroInterval':8,'heroLabel':'A PLACE TO SLOW DOWN','heroTitle':'','heroTail':'','heroIntro':'','heroOverlay':30,'heroine':'atri','scrollCue':'往下翻翻','avatarBg':'/assets/landscape-room.webp'}
+SITE_DEFAULTS={'blogTheme':'paper','listStyle':'editorial','motion':True,'showTicker':True,'showSidebar':True,'previewImages':True,'blogBackground':'','coverImage':'','title':'林间笔记','subtitle':'收集沿途的光影，也收藏喜欢的故事。','notice':'欢迎来坐坐。关于技术、生活，以及途中遇见的故事。','cover':'landscape-fields','commentsEnabled':True,'heroMode':'poster','heroImages':['landscape-eye','landscape-fantasy','dimension-sunset','landscape-study'],'heroInterval':8,'heroLabel':'A PLACE TO SLOW DOWN','heroTitle':'','heroTail':'','heroIntro':'','heroOverlay':30,'heroine':'atri','scrollCue':'往下翻翻','avatarBg':'/assets/landscape-room.webp'}
 COVERS=['landscape-'+s for s in ['dawn','fields','room','study','fantasy','orbit','journey','eye','games']]+['dimension-'+s for s in ['sunset','blue','gold','violet','pink']]
+SITE_DEFAULTS['siteStartedAt']=''
 
 
 def site_settings(body):
     result=copy.deepcopy(SITE_DEFAULTS)
     result.update({k:v for k,v in body.items() if k in result})
+    if not isinstance(result['siteStartedAt'],str) or len(result['siteStartedAt'])>40: fail(400,'建站日期格式无效')
+    if result.get('siteStartedAt'):
+        timestamp(result['siteStartedAt'])
     for key,options in {'blogTheme':['paper','gallery'],'listStyle':['editorial','grid'],'heroMode':['poster','collage'],'cover':COVERS,'heroine':['atri','charlotte','wada','cafe','flower','may']}.items(): choice(result[key],options)
     for key in ['motion','showTicker','showSidebar','previewImages','commentsEnabled']:
         if not isinstance(result[key],bool): fail(400,'开关必须是布尔值')

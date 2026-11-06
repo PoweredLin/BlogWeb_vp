@@ -10,6 +10,7 @@ const routes=[{path:'/',component:Layout,children:[
  {path:'articleList',name:'ArticleList',meta:{name:'文章列表'},component:()=>import('@/views/article/article-list.vue')},
  {path:'moments',name:'Moments',meta:{name:'说说'},component:()=>import('@/integration/LinJournal.vue')},
  {path:'albums',name:'Albums',meta:{name:'相册'},component:()=>import('@/integration/LinJournal.vue')},
+ {path:'anime',name:'Anime',meta:{name:'季度番剧'},component:()=>import('@/integration/LinAnimeWall.vue')},
  {path:'about',name:'About',meta:{name:'关于网站'},component:()=>import('@/views/about.vue')},
  {path:':pathMatch(.*)*',component:()=>import('@/views/404/index.vue')}]}];
-const router=createRouter({history:createWebHistory(),routes});router.beforeEach(()=>{NProgress.start();});router.afterEach(to=>{NProgress.done();document.title=(to.meta.name||'博客')+' · Lin 的随手记';if(!to.hash)window.scrollTo(0,0);else setTimeout(()=>document.getElementById(decodeURIComponent(to.hash.slice(1)))?.scrollIntoView(),100);});export default router;
+const router=createRouter({history:createWebHistory(),routes});router.beforeEach(()=>{NProgress.start();});router.afterEach(to=>{NProgress.done();document.title=(to.meta.name||'博客')+' · 林间笔记';if(!to.hash)window.scrollTo(0,0);else setTimeout(()=>document.getElementById(decodeURIComponent(to.hash.slice(1)))?.scrollIntoView(),100);});export default router;
