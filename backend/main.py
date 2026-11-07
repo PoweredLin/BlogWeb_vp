@@ -43,7 +43,7 @@ class Boundary:
                 if path in ('/','/home') or path=='/admin' or path.startswith('/admin/'):
                     from .reference_docs import EMBED_ORIGINS
                     h[:]=[(k,v.replace(b"frame-src 'self';",("frame-src 'self' "+' '.join(EMBED_ORIGINS)+';').encode())) if k==b'content-security-policy' else (k,v) for k,v in h]
-                if path.startswith('/api') or path.startswith('/admin') or path.startswith('/space-tools'):
+                if path=='/api' or path.startswith('/api/') or path=='/admin' or path.startswith('/admin/') or path.startswith('/space-tools/'):
                     h[:]=[(k,v) for k,v in h if k.lower()!=b'cache-control']; h.append((b'cache-control',b'no-store'))
             await send(message)
         host=headers.get(b'host',b'').decode('latin1')
@@ -57,7 +57,9 @@ class Boundary:
         token=req.cookies.get('space_session')
         def resolve_identity():
             with self.store.connect() as db: return identity(db,token)
-        current=await run_in_threadpool(resolve_identity) if token else None
+        # Public build assets never need a session lookup (or a database connection).
+        public_asset=method in ('GET','HEAD') and path.startswith(('/admin-app/assets/','/blog-app/assets/','/tools-app/assets/','/fonts/','/assets/'))
+        current=await run_in_threadpool(resolve_identity) if token and not public_asset else None
         scope.setdefault('state',{})['user']=current
         restricted=path.startswith(('/api/private/','/api/admin/','/api/studio/','/space-tools/'))
         if restricted:

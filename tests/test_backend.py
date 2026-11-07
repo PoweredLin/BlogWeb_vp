@@ -46,6 +46,25 @@ def test_public_site_status_and_start_date(client):
     assert client.get('/fonts/manifest.json').status_code==404
 
 
+def test_admin_build_assets_cache_without_session_lookup(client,monkeypatch):
+    from backend import main
+    entry=main.ROOT/'public/admin-app/index.html'
+    import re
+    assets=re.findall(r'(?:src|href)="(/admin-app/assets/[^"?]+)"',entry.read_text(encoding='utf-8'))
+    assert assets,'Build the admin frontend before running this test'
+    def unexpected(*args):raise AssertionError('Public build asset must not resolve a session')
+    with monkeypatch.context() as patch:
+        patch.setattr(main,'identity',unexpected)
+        for path in assets:
+            response=client.get(path)
+            assert response.status_code==200
+            assert response.headers['cache-control']=='public,max-age=31536000,immutable'
+    assert client.get('/admin/room').headers['cache-control']=='no-store'
+    assert client.get('/api/status').headers['cache-control']=='no-store'
+    client.cookies.clear()
+    assert client.get('/api/private/state').status_code==401
+
+
 def post(**kwargs):
     return {'title':'Test','slug':'test-post','excerpt':'Summary','content':'## Hello\n\nText','category':'技术笔记','status':'published','publishAt':datetime.now(timezone.utc).isoformat(),**kwargs}
 
